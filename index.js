@@ -1019,7 +1019,7 @@ async function runDailyActivity() {
 
 const screen = blessed.screen({
   smartCSR: true,
-  title: "PHAROS AUTO BOT",
+  title: "FAROSWAP AUTO BOT",
   autoPadding: true,
   fullUnicode: true,
   mouse: true,
