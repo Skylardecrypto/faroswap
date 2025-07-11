@@ -614,9 +614,16 @@ async function reportTransaction(walletAddress, txHash) {
     addLog("Reporting transaction stopped due to stop request.", "info");
     return;
   }
+
   activeProcesses++;
+
   try {
-    const url = `https://api.pharosnetwork.xyz/task/verify?address=${walletAddress}&task_id=103&tx_hash=${txHash}`;
+    const url = "https://api.pharosnetwork.xyz/task/verify";
+    const payload = {
+      address: walletAddress,
+      task_id: 103,
+      tx_hash: txHash
+    };
     const maxRetries = 5;
     let lastError = null;
 
@@ -625,32 +632,27 @@ async function reportTransaction(walletAddress, txHash) {
     for (let attempt = 1; attempt <= maxRetries && !shouldStop; attempt++) {
       try {
         const headers = {
-          "accept": "application/json, text/plain, */*",
-          "accept-language": "en-US,en;q=0.8",
-          "authorization": `Bearer ${accountJwts[walletAddress]}`,
-          "priority": "u=1, i",
-          "sec-ch-ua": '"Chromium";v="136", "Brave";v="136", "Not.A/Brand";v="99"',
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": '"Windows"',
-          "sec-fetch-dest": "empty",
-          "sec-fetch-mode": "cors",
-          "sec-fetch-site": "same-site",
-          "sec-gpc": "1",
+          "Content-Type": "application/json",
+          "Accept": "application/json, text/plain, */*",
+          "Authorization": `Bearer ${accountJwts[walletAddress]}`,
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
           "Referer": "https://testnet.pharosnetwork.xyz/",
-          "Referrer-Policy": "strict-origin-when-cross-origin",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+          "Origin":  "https://testnet.pharosnetwork.xyz"
         };
+
         addLog(`Attempt ${attempt}/${maxRetries}: Sending report`, "info");
+
         const response = await makeApiRequest(
           "post",
           url,
-          null,
+          payload,
           null,
           headers,
           1,
           2000,
           false
         );
+
         if (response.code === 0 && response.data?.verified) {
           addLog(`Transaction reported successfully`, "success");
           return;
@@ -662,18 +664,22 @@ async function reportTransaction(walletAddress, txHash) {
         lastError = error.response?.data || error.message;
         addLog(`Attempt ${attempt}/${maxRetries} error: ${lastError}`, "error");
       }
+
       if (attempt < maxRetries && !shouldStop) {
         addLog(`Waiting 10 seconds before retrying...`, "wait");
         await sleep(10000);
       }
     }
+
     if (!shouldStop) {
       addLog(`Failed to report transaction after ${maxRetries} attempts: ${lastError}`, "error");
     }
+
   } finally {
     activeProcesses = Math.max(0, activeProcesses - 1);
   }
 }
+
 
 async function claimFaucetPHRs() {
   if (privateKeys.length === 0) {
@@ -1762,8 +1768,8 @@ repetitionsForm.on("submit", () => {
   let repetitions;
   try {
     repetitions = parseInt(repetitionsText, 10);
-    if (isNaN(repetitions) || repetitions < 1 || repetitions > 100) {
-      addLog("Invalid input. Please enter a number between 1 and 100.", "error");
+    if (isNaN(repetitions) || repetitions < 1 || repetitions > 1000) {
+      addLog("Invalid input. Please enter a number between 1 and 1000.", "error");
       repetitionsInput.setValue("");
       screen.focusPush(repetitionsInput);
       safeRender();
