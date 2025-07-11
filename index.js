@@ -395,7 +395,7 @@ async function getDodoRoute(fromToken, toToken, fromAmount, userAddr, proxyUrl) 
   const apikey = "a37546505892e1a952";
   const slippage = 10.401;
   const source = "dodoV2AndMixWasm";
-  const estimateGas = false;
+  const estimateGas = true;
 
   const url = `https://api.dodoex.io/route-service/v2/widget/getdodoroute?chainId=${chainId}&deadLine=${deadline}&apikey=${apikey}&slippage=${slippage}&source=${source}&toTokenAddress=${toToken}&fromTokenAddress=${fromToken}&userAddr=${userAddr}&estimateGas=${estimateGas}&fromAmount=${fromAmount}`;
 
@@ -1019,7 +1019,7 @@ async function runDailyActivity() {
 
 const screen = blessed.screen({
   smartCSR: true,
-  title: "FAROSWAP AUTO BOT",
+  title: "PHAROS AUTO BOT",
   autoPadding: true,
   fullUnicode: true,
   mouse: true,
